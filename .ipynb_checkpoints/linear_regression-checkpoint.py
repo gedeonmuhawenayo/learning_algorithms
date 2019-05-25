@@ -9,11 +9,6 @@ class LinearRegression(object):
     ----------
     alpha : float, default: 0.01
         The learning rate for gradient descent.
-    num_iters : float, default=1500
-        Maximum iterations to run gradient descent.
-    num_iters: integer, default: 1500
-        Maximum number of iterations to run gradient descent. 
-        If normal equation is used, it is not considered.
         
     Returns
     -------
@@ -21,14 +16,13 @@ class LinearRegression(object):
         The normalized dataset of shape (m x n).
     """
     
-    def __init__(self, alpha_=0.01, num_iters=1500):
+    def __init__(self, alpha_=0.01):
         self.alpha_ = alpha_
-        self.num_iters = num_iters
-        print(f"LinearRegression(alpha_={self.alpha_}, num_iters={self.num_iters})")
-        
+    
     def cost(self):
         """
-        Compute cost for linear regression. Computes the cost of using theta as
+        Compute cost and gradient for regularized linear regression 
+        with multiple variables. Computes the cost of using theta as
         the parameter for linear regression to fit the data points in X and y. 
             
         Parameters
@@ -52,13 +46,24 @@ class LinearRegression(object):
         -------
         C : float
             The value of the cost function.
-        """    
+
+        grad : array_like
+            The value of the cost function gradient w.r.t theta. 
+            A vector of shape (n+1, ).
+                Returns
+
+        Instructions
+        ------------
+        Compute the cost and gradient of regularized linear regression for
+        a particular choice of theta.
+        You should set J to the cost and grad to the gradient.
+        """
         # Initialize some useful values
         m = self.y.size # number of training examples
-        C = 0
+        C = 0 # cost for each iteration
 
         y_hat = np.dot(self.X, self.w.T)
-        C = (1/(2*m)) * np.sum((y_hat - self.y)**2)
+        C = (1/(2*m)) * np.sum((y_hat - self.y)**2) + (self.lambda_/(2*m))*np.sum(self.w[1:]**2)
 
         return C
     
@@ -70,24 +75,24 @@ class LinearRegression(object):
         Returns
         -------
         cpi : list
-            A python list for the values of the cost function after some iteration.
+            A python list for the values of the cost function after each iteration.
         """
         
         # Initialize some useful values
         m = self.y.size # number of training examples
         self.w = np.zeros(self.X.shape[1])
         cpi = dict()
-        
+
         for i in range(self.num_iters):
             y_hat = np.dot(self.X, self.w.T)           
             
-            w_ = self.w.copy()
+            w_ = self.w
             w_[0] = 0   # because we don't add anything for j = 0
             grad = (1/m) * np.dot(self.X.T, (y_hat - self.y))
-            grad = grad - (self.lambda_/m)*w_
+            grad = grad + (self.lambda_/m)*w_
             self.w = self.w - self.alpha_*grad
             
-            # save the cost C in dictionary for every Kth iteration
+            # save the cost C in dictionary for every 10th iteration
             if not np.remainder(i, 10):
                 cpi[i] = self.cost()
         return cpi
@@ -95,7 +100,6 @@ class LinearRegression(object):
     def normal_eqn(self):
         """
         Computes the closed-form solution to linear regression using the normal equations.
-        w = np.linalg.inv(X.T@X)@(X.T)@y
 
         Parameters
         ----------
@@ -110,12 +114,12 @@ class LinearRegression(object):
         w : array_like
             Estimated linear regression weights. A vector of shape (n+1, ).
         """
-        self.w = np.zeros(self.X.shape[1]) #initialize
+        self.w = np.zeros(self.X.shape[1])
         self.w = ((np.linalg.pinv(np.dot(self.X.T, self.X)))@self.X.T)@self.y
         
         return
     
-    def fit(self, X, y, lambda_=0.0, normal=False):
+    def fit(self, X, y, num_iters=100, lambda_=0.0, **kwargs):
         """ Fits a dataset (X, y) using a linear model 
     
         Parameters
@@ -125,15 +129,14 @@ class LinearRegression(object):
 
         y : array_like
             A vector of shape (m, ) for the values at a given data point.
-            
-        normal : boolean, default : False
-            Specify the optimization method to use, whether normal equation or gradient descent.
-            Uses gradient descent by default
-            
+        
          Options
         ----------        
         lambda_ : float, optional
-            The regularization parameter. Set to 0.0 to use normal linear regression without regularization.
+            The regularization parameter.
+            
+        num_iters : float, default: 100
+            Number of iterations for gradient descent to converge
 
         Returns
         -------
@@ -153,18 +156,22 @@ class LinearRegression(object):
         else:
             self.X = np.concatenate([np.ones((m, 1)), X], axis=1)
         self.y = y
+        self.num_iters = num_iters
         self.lambda_ = lambda_
         self.w = np.zeros(self.X.shape[1])
         
-        if normal: 
-            cpi = self.normal_eqn()
+        if m < 10: 
+            #use normal equation method
+            self.normal_eqn()
+            cpi = None
         else:
+            #use gradient descent for m >100
             cpi = self.gradient_descent()    
         
         return {'w': self.w, 'cpi': cpi}
     
-    def predict(self, X, y):
-        """ Find approximate values of target variable, y_hat, using learned model weights, w
+    def predict(self, X, y, score="rmse"):
+        """ Find approximate values of arget variable using a learned model weights 
     
         Parameters
         ----------
@@ -173,6 +180,14 @@ class LinearRegression(object):
 
         y : array_like
             A vector of shape (m, ) for the values at a given data point.
+        
+         Options
+        ----------        
+        score : float
+            The metrics for evaluating performance of model.
+            
+            - rmse : root mean squared error
+            - mse : mean squared error
 
         Returns
         -------
@@ -180,21 +195,23 @@ class LinearRegression(object):
         
         y_hat : array_like
             The array of predicted target for each example, shape (m x n).
+        score: 
+            - rmse or mse
         """
         m = X.shape[0]
-        
+
         if X.ndim == 1: 
             #promote array to 2 dimension if array is a vector
             X = X[:, None]
             X = np.concatenate([np.ones((m, 1)), X], axis=1)
         else:
             X = np.concatenate([np.ones((m, 1)), X], axis=1)
-        
+
         y_hat = np.dot(X, self.w.T)
-        
+
         return y_hat
     
-    def score(self, y, y_hat, how="rmse"):
+    def score(self, y, y_hat, score="rmse"):
         """ 
         Calculates score metrics for the learning algorithm.
         Parameters
@@ -204,7 +221,7 @@ class LinearRegression(object):
 
         y : array_like
             A vector of shape (m, ) for the values at a given data point.
-        
+
         Options
         ----------        
         type : string
@@ -214,12 +231,12 @@ class LinearRegression(object):
 
         Returns
         -------
-        score: float
+        score_metric: float
         """
         scorer = Scorer()
-        if how == "rmse":   
-            score = scorer.rmse_(y, y_hat)
-            print(f"rmse: {score}")
-        elif how == "mse":
-            score = scorer.mse_(y, y_hat)
-            print(f"mse: , {score}")
+        if score == "rmse":   
+            score_metric = scorer.rmse_(y, y_hat)
+        elif score == "mse":
+            score_metric = scorer.mse_(y, y_hat)
+
+        return score_metric

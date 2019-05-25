@@ -25,7 +25,7 @@ class Normalizer(object):
         """
         self.mu = np.mean(X, axis=0)
         self.std = np.std(X, axis=0)
-        self.X_norm = X - mu
+        self.X_norm = X - self.mu
         
         return self.X_norm, self.mu
     
