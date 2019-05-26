@@ -24,6 +24,7 @@ from <a href="https://www.numpy.org/">numpy website</a>
 * Scoring class which includes Accuracy, f1_score, precision, recall, rmse, mse
 * Normalization class with mean normalization, centering, min-max normalization
 * Gradient descent implementation for the various algorithms
+* KMeans clustering algorithm
 
 ```To-do list```
 * Linear Support Vector Machines
@@ -31,7 +32,6 @@ from <a href="https://www.numpy.org/">numpy website</a>
 * Neural Networks Algorithm
 * Back Propagation
 * Principal Component Analysis
-* k-means Algorithm
 * Anomaly Detection Algorithm
 * Recommender Systems Algorithm
 
