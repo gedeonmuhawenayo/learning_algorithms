@@ -1,11 +1,26 @@
 import numpy as np
 
 class KMeans(object):
-    """ Clustering algorithms that groupd data into K number of clusters using distance metric"""
+    """ Clustering algorithms that groupd data into K number of clusters using distance metric
     
-    def __init__(self, k=3, max_iters=10):
+    Parameters
+    ----------
+    k : integer, default=2
+        number of clusters
+    
+    max_iters : integer, default=10
+        Maximum iterations to run kmeans before stopping
+        
+    tolerance : float, default=1
+        amount of change in cost to consider before stopping kmeans. 
+        Overrides max_iters if condition is met
+        
+    """
+    
+    def __init__(self, k=3, max_iters=10, tolerance=1):
         self.K = k
         self.max_iters = max_iters
+        self.tolerance = tolerance
     
     def initialize_centroids(self):
         """
@@ -40,7 +55,7 @@ class KMeans(object):
             The k-means centroids of size (K, n). K is the number
             of clusters, and n is the the data dimension.
 
-        Returns
+        Computes
         -------
         idx : array_like
             A vector of size (m, ) which holds the centroids assignment for each
@@ -61,8 +76,8 @@ class KMeans(object):
     
     def update_centroids(self):
         """
-        computes the means of the data points ssigned to each centroid and update centroid with mean accordingly.
-
+        computes the means of the data points ssigned to each centroid and 
+        update centroid with mean accordingly.
         """
 
         for i in range(self.K):
@@ -79,17 +94,23 @@ class KMeans(object):
             The datset where each row is a single data point. That is, it 
             is a matrix of size (m, n) where there are m datapoints each
             having n dimensions.
-
         """
+        
         if X.ndim == 1: 
             # promote array to 2 dimension if array is a vector
             X = X[:, None]
         self.X = X
+        cpi = list()
         
         self.initialize_centroids()
-        for _ in range(self.max_iters):
+        for i in range(self.max_iters):
             self.assign_cluster()
             self.update_centroids()
+            
+            cpi.append(self.cost())
+            if np.abs(cpi[i] - cpi[i-1]) < self.tolerance:
+                break
+                
         print(f"{self.K} centroids assigned for {X.shape[0]} examples")
         
         return
