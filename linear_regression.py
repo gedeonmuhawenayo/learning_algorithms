@@ -1,19 +1,21 @@
 import numpy as np
 from scorer import Scorer
 
-class LinearRegression(object):
+class LinearReg(object):
     """
     Fits a dataset (X, y) using a linear model 
     
     Options
     ----------
-    alpha : float, default: 0.01
+    alpha : float, default=0.01
         The learning rate for gradient descent.
-    num_iters : float, default=1500
-        Maximum iterations to run gradient descent.
-    num_iters: integer, default: 1500
+
+    max_iters: integer, default=1500
         Maximum number of iterations to run gradient descent. 
         If normal equation is used, it is not considered.
+    
+    tolerance_ : float, default=0.0001
+        Difference between previous cost and current cost to consider befor halting gradient descent. 
         
     Returns
     -------
@@ -21,10 +23,11 @@ class LinearRegression(object):
         The normalized dataset of shape (m x n).
     """
     
-    def __init__(self, alpha_=0.01, num_iters=1500):
+    def __init__(self, alpha_=0.01, max_iters=1500, tolerance_=0.00001):
         self.alpha_ = alpha_
-        self.num_iters = num_iters
-        print(f"LinearRegression(alpha_={self.alpha_}, num_iters={self.num_iters})")
+        self.max_iters = max_iters
+        self.tolerance_ = tolerance_
+        print(f"LinearReg(alpha_={self.alpha_}, max_iters={self.max_iters}, tolerance_={self.tolerance_})")
         
     def cost(self):
         """
@@ -70,7 +73,7 @@ class LinearRegression(object):
         Returns
         -------
         cpi : list
-            A python list for the values of the cost function after some iteration.
+            A python list for the values of the cost function for every iteration.
         """
         
         # Initialize some useful values
@@ -78,7 +81,7 @@ class LinearRegression(object):
         self.w = np.zeros(self.X.shape[1])
         cpi = dict()
         
-        for i in range(self.num_iters):
+        for i in range(self.max_iters):
             y_hat = np.dot(self.X, self.w.T)           
             
             w_ = self.w.copy()
@@ -87,9 +90,18 @@ class LinearRegression(object):
             grad = grad - (self.lambda_/m)*w_
             self.w = self.w - self.alpha_*grad
             
-            # save the cost C in dictionary for every Kth iteration
+            # save the cost in dictionary for every iteration
+            cpi[i] = self.cost()
             if not np.remainder(i, 10):
-                cpi[i] = self.cost()
+                #Display cost for every 10 iterations
+                print(f"Cost for {i}th iteration - {cpi[i]}")
+                
+            if i > 0:
+                #check tolerance level of cost to stop gradient descent irrespective of num_iters
+                current_cost = cpi[i]
+                previous_cost = cpi[i-1]
+                if np.abs(previous_cost-current_cost) <= self.tolerance_:
+                    break
         return cpi
     
     def normal_eqn(self):
@@ -126,21 +138,22 @@ class LinearRegression(object):
         y : array_like
             A vector of shape (m, ) for the values at a given data point.
             
-        normal : boolean, default : False
-            Specify the optimization method to use, whether normal equation or gradient descent.
-            Uses gradient descent by default
-            
          Options
         ----------        
         lambda_ : float, optional
             The regularization parameter. Set to 0.0 to use normal linear regression without regularization.
 
+        normal : boolean, default : False
+            Specify the optimization method to use, whether normal equation or gradient descent.
+            Uses gradient descent by default
+
         Returns
         -------
         w : array_like
             The array of weights of shape (m x n).
+            
         cpi: array_like
-            Cost per iteration. The cost calculated over each iteration of gradient descent.
+            Cost per iteration. The cost calculated every 10 iteration of gradient descent.
 
         """
         
@@ -163,7 +176,7 @@ class LinearRegression(object):
         
         return {'w': self.w, 'cpi': cpi}
     
-    def predict(self, X, y):
+    def predict(self, X):
         """ Find approximate values of target variable, y_hat, using learned model weights, w
     
         Parameters
@@ -171,26 +184,21 @@ class LinearRegression(object):
         X : array_like
             The dataset of shape (m x n).
 
-        y : array_like
-            A vector of shape (m, ) for the values at a given data point.
-
         Returns
         -------
-        A dictionary of y_hat and score
-        
         y_hat : array_like
-            The array of predicted target for each example, shape (m x n).
+            The array of predicted target for each example, shape (m x 1).
         """
         m = X.shape[0]
         
         if X.ndim == 1: 
             #promote array to 2 dimension if array is a vector
             X = X[:, None]
-            X = np.concatenate([np.ones((m, 1)), X], axis=1)
+            Xval = np.concatenate([np.ones((m, 1)), X], axis=1)
         else:
-            X = np.concatenate([np.ones((m, 1)), X], axis=1)
+            Xval = np.concatenate([np.ones((m, 1)), X], axis=1)
         
-        y_hat = np.dot(X, self.w.T)
+        y_hat = np.dot(Xval, self.w.T)
         
         return y_hat
     
