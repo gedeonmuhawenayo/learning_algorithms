@@ -4,7 +4,7 @@ Learning Algorithms written from scratch using numpy.
 
 ## Getting Started
 
-Clone the repo 
+Clone the repo   
     git clone https://github.com/ogunlao/learning_algorithms.git
 
 or download a zipped version to use on your local machine.
@@ -12,12 +12,10 @@ or download a zipped version to use on your local machine.
 ### Prerequisites
 
 * python >= 3.6
-* numpy >= 1.14
+* numpy >= 1.14  
 
-```
 Tutorials and how to download Python can be found on <a href="https://www.python.org/">Python website<a> while numpy can be gotten 
 from <a href="https://www.numpy.org/">numpy website</a> 
-```
 
 ### Contents
 
@@ -40,20 +38,21 @@ from <a href="https://www.numpy.org/">numpy website</a>
 ## Importing Algorithms
 
 on your terminal, change to folder where you downloaded the files
-e.g.
-cd path_to_file/
-from learning_algorithms import linear_regression
-from learning_algorithms import logistic_regression
+e.g.  
+    
+cd path_to_folder/  
+from learning_algorithms import linear_regression  
+from learning_algorithms import logistic_regression  
 from learning_algorithms import scorer
 e.t.c
 
-lr = linear_regression.linearReg()
-lr.fit(X, y)
-pred = lr.predict(Xval)
+lr = linear_regression.linearReg()  
+lr.fit(X, y)  
+pred = lr.predict(Xval)  
 
 where (X,y) are the training examples and (Xval,yval) are the validation examples
 
-sc = scorer.Scorer()
+sc = scorer.Scorer()  
 sc.rmse(yval, pred)
 
 ### Vectorization
@@ -68,4 +67,3 @@ In all cases where I was aware of vectorized version of arithmetics, I avoided l
 
 * Inspired to write from scratch after going through the <a href="https://www.coursera.org/learn/machine-learning">Machine Learning Course by Stanford Universiy</a> on Coursera, taught by Andrew Ng
 * Special thanks to <a herf="https://github.com/dibgerge/ml-coursera-python-assignments">dibgerge</a> for rewriting the course assignments in python. It encouraged me to use my already familiar language of python to understand machine learning concepts.
-
