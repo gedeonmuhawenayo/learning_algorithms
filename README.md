@@ -14,8 +14,7 @@ or download a zipped version on your local machine.
 * python >= 3.6
 * numpy >= 1.14  
 
-Tutorials and how to download Python can be found on <a href="https://www.python.org/">Python website</a> while numpy can be gotten 
-from <a href="https://www.numpy.org/">numpy website</a> 
+Python can be downloaded from <a href="https://www.python.org/">Python website</a> while information on numpy can be found on the <a href="https://www.numpy.org/">numpy official website</a>
 
 ### Contents
 
@@ -34,6 +33,7 @@ from <a href="https://www.numpy.org/">numpy website</a>
 * Back Propagation
 * Anomaly Detection Algorithm
 * Recommender Systems Algorithm
+* Mini-batch Gradient Descent
 
 
 ## Importing Algorithms
@@ -43,11 +43,10 @@ e.g.
 
 ```
 cd path_to_folder/  
-from learning_algorithms import linear_regression  
-from learning_algorithms import logistic_regression  
+from learning_algorithms import linear_regression   
 from learning_algorithms import scorer
 ```
-e.t.c
+
 ```
 lr = linear_regression.linearReg()  
 lr.fit(X, y)  
@@ -62,7 +61,7 @@ sc.rmse(yval, pred)
 
 ### Vectorization
 
-In all cases where I was aware of vectorized version of arithmetics, I avoided loops except where necessary.
+Vectorized implementation of algorithms where used whenever possible to make codes run faster. Batch Gradient Descent used in all algorithms. Working on a mini-batch version.
 
 ## Author
 

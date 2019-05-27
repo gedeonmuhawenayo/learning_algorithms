@@ -19,7 +19,7 @@ class LogisticReg(object):
     
     def __init__(self, alpha_=0.01, max_iters=100, tolerance_=0.0001):
         self.alpha_ = alpha_
-        self.max_iters = 100
+        self.max_iters = max_iters
         self.tolerance_ = tolerance_
         print(f"LogisticReg(alpha_={self.alpha_}, max_iters={self.max_iters}, tolerance_={self.tolerance_})")
     
@@ -99,7 +99,7 @@ class LogisticReg(object):
                     break
         return cpi
 
-    def fit(self, X, y, lambda_=0.0, num_iters=100):
+    def fit(self, X, y, lambda_=0.0):
         """
         Trains logistic regression and returns the best prediction for each example.
 
@@ -114,8 +114,6 @@ class LogisticReg(object):
 
         lambda_ : float
             The logistic regularization parameter.
-        
-        num_iters : integer, default=100
 
         Returns
         -------
@@ -135,7 +133,6 @@ class LogisticReg(object):
         self.class_values = np.unique(y)
         self.num_labels = len(self.class_values)
         self.lambda_ = lambda_
-        print(self.class_values)
         
         # Turn y into one-hot-labels if number of classes is greater than 2
         if self.num_labels > 2:
