@@ -20,6 +20,8 @@ Python can be downloaded from <a href="https://www.python.org/">Python website</
 
 * Linear Regression algorithm with regularization
 * Logistic Regression
+* Neural Networks Algorithm
+* Back Propagation
 * Scoring class which includes Accuracy, f1_score, precision, recall, rmse, mse
 * Normalization class with mean normalization, centering, min-max normalization
 * Gradient descent optimization for the algorithms
@@ -28,9 +30,7 @@ Python can be downloaded from <a href="https://www.python.org/">Python website</
 
 ```To-do list```
 * Linear Support Vector Machines
-* Kernel Support Vector Machines
-* Neural Networks Algorithm
-* Back Propagation
+* Kernel Support Vector Machine
 * Anomaly Detection Algorithm
 * Recommender Systems Algorithm
 * Mini-batch Gradient Descent
