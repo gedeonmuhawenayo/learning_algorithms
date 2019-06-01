@@ -18,15 +18,17 @@ Python can be downloaded from <a href="https://www.python.org/">Python website</
 
 ### Contents
 
-* Linear Regression algorithm with regularization
+* Linear Regression algorithm with L2 regularization
 * Logistic Regression
-* Neural Networks Algorithm
-* Back Propagation
+* Neural Networks Classifier
+    * Forward Propagation
+    * Back Propagation
+* KMeans clustering algorithm
+* Principal Component Analysis (PCA)
 * Scoring class which includes Accuracy, f1_score, precision, recall, rmse, mse
 * Normalization class with mean normalization, centering, min-max normalization
-* Gradient descent optimization for the algorithms
-* KMeans clustering algorithm
-* Principal Component Analysis
+* Batch Gradient descent optimization algorithms
+
 
 ```To-do list```
 * Linear Support Vector Machines
