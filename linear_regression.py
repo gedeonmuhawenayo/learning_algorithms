@@ -79,7 +79,7 @@ class LinearReg(object):
         # Initialize some useful values
         m = self.y.size # number of training examples
         self.w = np.zeros(self.X.shape[1])
-        cpi = dict()
+        cost_per_iter = dict()
         
         for i in range(self.max_iters):
             y_hat = np.dot(self.X, self.w.T)           
@@ -91,18 +91,18 @@ class LinearReg(object):
             self.w = self.w - self.alpha_*grad
             
             # save the cost in dictionary for every iteration
-            cpi[i] = self.cost()
+            cost_per_iter[i] = self.cost()
             if not np.remainder(i, 10):
                 #Display cost for every 10 iterations
-                print(f"Cost for {i}th iteration - {cpi[i]}")
+                print(f"Cost for {i}th iteration - {cost_per_iter[i]}")
                 
             if i > 0:
                 #check tolerance level of cost to stop gradient descent irrespective of num_iters
-                current_cost = cpi[i]
-                previous_cost = cpi[i-1]
+                current_cost = cost_per_iter[i]
+                previous_cost = cost_per_iter[i-1]
                 if np.abs(previous_cost-current_cost) <= self.tolerance_:
                     break
-        return cpi
+        return cost_per_iter
     
     def normal_eqn(self):
         """
@@ -170,11 +170,11 @@ class LinearReg(object):
         self.w = np.zeros(self.X.shape[1])
         
         if normal: 
-            cpi = self.normal_eqn()
+            cost_per_iter = self.normal_eqn()
         else:
-            cpi = self.gradient_descent()    
+            cost_per_iter = self.gradient_descent()    
         
-        return {'w': self.w, 'cpi': cpi}
+        return {'w': self.w, 'cost_per_iter': cost_per_iter}
     
     def predict(self, X):
         """ Find approximate values of target variable, y_hat, using learned model weights, w

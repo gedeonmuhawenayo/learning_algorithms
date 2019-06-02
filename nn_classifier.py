@@ -267,12 +267,22 @@ class NeuralNetworkClassifier(object):
         # useful variables
         m = Xval.shape[0]
                                           
-        p = np.zeros(Xval.shape[0])
+        prediction = np.zeros(Xval.shape[0])
 
         # Add ones to the X data matrix
         Xval = np.concatenate([np.ones((m, 1)), Xval], axis=1) 
         
-        a_i = self.__sigmoid(np.dot(self.X, self.w[0].T))
+        y_hat = self.predict_prob(Xval)
+        
+        prediction = np.argmax(y_hat, axis=1)                            
+
+        return prediction
+    
+    def predict_prob(self, Xval):
+        """Returns the matrix of probabilities of the classes"""
+        m = Xval.shape[0]
+
+        a_i = self.__sigmoid(np.dot(Xval, self.w[0].T))
         a_i = np.concatenate([np.ones((m,1)), a_i], axis=1)
         for i in range(self.num_layers - 3):
             a_i = self.__sigmoid(np.dot(a_i, self.w[i+1].T))
@@ -280,26 +290,18 @@ class NeuralNetworkClassifier(object):
             a_i = np.concatenate([np.ones((a_size,1)), a_i], axis=1)    
         a_last = self.__sigmoid(np.dot(a_i, self.w[-1].T))
         self.a_last = a_last
-        
-        p = np.argmax(self.a_last, axis=1)                            
 
-        return p
-    
-    def predict_prob(self, X):
-        """Returns the matrix of probabilities of the classes instead of the predicted class"""
-        
-        self.predict(X)
         return self.a_last
     
     def classes_(self):
-        """Produces the classes and corresponding integer values
+        """Produces the classes and corresponding mapped integer values
         
         Returns
         ---------
         clx: dictionary
         """
         
-        clx = dict()
+        class_dict = dict()
         for i, class_ in enumerate(self.class_values):
-            clx[i] = class_
-        return clx
+            class_dict[i] = class_
+        return class_dict

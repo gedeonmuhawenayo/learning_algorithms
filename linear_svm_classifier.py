@@ -1,8 +1,7 @@
 import numpy as np
 
-class LogisticReg(object):
-    """ Classification algorithm that uses the sigmoid non-linear function. 
-    Performs both binary and multi-class classification.
+class LinearSVMClassifier(object):
+    """ Creates a large margin classifier. Performs both binary and multi-class linear classification.
     
     Options
     ---------
@@ -17,40 +16,29 @@ class LogisticReg(object):
         
     """
     
-    def __init__(self, alpha_=0.01, max_iters=100, tolerance_=0.0001):
+    def __init__(self, alpha_=0.1, max_iters=100, tolerance_=0.0001):
         self.alpha_ = alpha_
-        self.max_iters = max_iters
+        self.max_iters = 100
         self.tolerance_ = tolerance_
         print(f"LogisticReg(alpha_={self.alpha_}, max_iters={self.max_iters}, tolerance_={self.tolerance_})")
     
-    def __sigmoid(self, z):
-        """ Compute sigmoid function given the input z."""
-        # convert input to a numpy array
-        z = np.array(z)
-
-        # Initialize
-        g = np.zeros(z.shape)
-        g = 1/(1 + np.exp(-1*z))
-
-        return g
-    
     def cost(self):
-        """Computes the cost of using weights, w as the parameter for logistic regression
+        """Computes the cost of using weights, w as the parameter for SVM classifier.
         
         Returns
         -------
         C : float
             The computed value for the cost function.
         """
-        m = self.X.shape[0]
-        y_hat = self.__sigmoid(np.dot(self.X, self.w.T))
         
-        C = (1/m)*np.sum(-1*self.y*np.log(y_hat)-(1-self.y)*np.log(1-y_hat))
+        y_hat = np.dot(self.X, self.w.T)
+        
+        C = self.gamma_*(np.sum(self.y*np.maximum(0, -1*y_hat+1)+(1-self.y)*np.maximum(0, y_hat+1)))
         
         return C
         
     def gradient_descent(self):
-        """ Performs logistic gradient descent w.r.t the weights for num_iter number of iterations
+        """ Performs SVM gradient descent w.r.t the weights for num_iter number of iterations
 
         Returns
         -------
@@ -63,25 +51,33 @@ class LogisticReg(object):
             A python list for the values of the cost function after some iteration.
 
         """
-        # Initialize variables
-        m, n = self.X.shape[0], self.X.shape[1]
+        
+        n = self.X.shape[1]
+        
+        # Initialize weights
         if self.num_labels > 2:
             self.w = np.zeros((self.num_labels, n))
         else:
             self.w = np.zeros((1, n))
+            
         grad = np.zeros(self.w.shape)
         cost_per_iter = dict()
 
         # convert labels to ints if their type is bool
         if self.y.dtype == bool:
             self.y = self.y.astype(int)
-        
+
         for i in range(self.max_iters):
-            y_hat = self.__sigmoid(np.dot(self.X, self.w.T))
+            y_hat = np.dot(self.X, self.w.T)
             w_ = self.w[:,:]
             w_[:, 0] = 0   # because we don't add anything for bias column
-            grad = (1/m)*np.dot(np.transpose(y_hat-self.y), self.X)
-            grad = grad + (self.lambda_/m)*w_
+
+            cost_1 = np.maximum(0, -1*y_hat+1)
+            cost_0 = np.maximum(0, y_hat+1)
+            
+            grad = self.gamma_*np.sum((self.y*((cost_1!=0).astype(int))
+                    +(1-self.y)*((cost_0!=0).astype(int))))
+            grad = grad + w_
             
             self.w = self.w - self.alpha_*grad
             
@@ -99,21 +95,23 @@ class LogisticReg(object):
                     break
         return cost_per_iter
 
-    def fit(self, X, y, lambda_=0.0):
+    def fit(self, X, y, gamma_=100.0, num_iters=100):
         """
-        Trains a logistic regression model and returns the best prediction for each example.
+        Trains an SVM to obtain the support vectors.
 
         Parameters
         ----------
         X : array_like
             The input dataset of shape (m x n). m is the number of 
-            examples, and n is the number of features.
+            data points, and n is the number of features.
 
         y : array_like
             The data labels. A vector of shape (m, ).
 
-        lambda_ : float
-            The logistic regularization parameter.
+        gamma_ : float. default = 1.0
+            The regularization parameter.
+        
+        num_iters : integer, default=100
 
         Returns
         -------
@@ -132,7 +130,7 @@ class LogisticReg(object):
         # Initialize some useful variables
         self.class_values = np.unique(y)
         self.num_labels = len(self.class_values)
-        self.lambda_ = lambda_
+        self.gamma_ = gamma_
         
         # Turn y into one-hot-labels if number of classes is greater than 2
         if self.num_labels > 2:
@@ -185,7 +183,7 @@ class LogisticReg(object):
         # Add ones to the X data matrix for the bias term
         Xval = np.concatenate([np.ones((m, 1)), X], axis=1)
         
-        y_prob = self.__sigmoid(np.dot(Xval, self.w.T))
+        y_prob = np.dot(Xval, self.w.T)
         return y_prob
     
     def classes_(self):
